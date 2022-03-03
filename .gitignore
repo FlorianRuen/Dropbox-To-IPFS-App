@@ -1,0 +1,21 @@
+# Frontend Stuff
+frontend/node_modules
+frontend/.env
+frontend/package-lock.json
+
+# Backend Stuff
+backend/go.sum
+backend/config.toml
+backend/database/liquibase/liquibase.properties
+backend/database/liquibase/liquibase.bat
+backend/database/liquibase/liquibase.jar
+backend/database/liquibase/postgresql-42.2.23.jar
+backend/database/liquibase/lib/h2-1.4.200.jar
+backend/database/liquibase/lib/jaxb-api-2.3.0.jar
+backend/database/liquibase/lib/jaxb-core-2.3.0.jar
+backend/database/liquibase/lib/jaxb-impl-2.3.0.jar
+backend/database/liquibase/lib/liquibase_autocomplete_mac.bash
+backend/database/liquibase/lib/liquibase_autocomplete.sh
+backend/database/liquibase/lib/picocli-4.6.1.jar
+backend/database/liquibase/lib/snakeyaml-1.27.jar
+backend/docker-compose.yml

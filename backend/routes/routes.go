@@ -5,9 +5,13 @@ import (
 	"time"
 
 	"github.com/FlorianRuen/Dropbox-To-IPFS-App/backend/controllers"
+	"github.com/FlorianRuen/Dropbox-To-IPFS-App/backend/repository"
+	"github.com/FlorianRuen/Dropbox-To-IPFS-App/backend/services"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 )
 
 func CustomLogger(logger *logrus.Logger) gin.HandlerFunc {
@@ -32,7 +36,7 @@ func CustomLogger(logger *logrus.Logger) gin.HandlerFunc {
 	}
 }
 
-func SetupRoutes(logger *logrus.Logger) http.Server {
+func SetupRoutes(logger *logrus.Logger, dBClient *gorm.DB) http.Server {
 
 	logger.Info("Setup all REST API endpoints ...")
 
@@ -55,18 +59,30 @@ func SetupRoutes(logger *logrus.Logger) http.Server {
 		}),
 	)
 
-	// Create all controllers to handle external requests
-	dropboxController := controllers.NewDropboxController(logger)
+	// Init : repository for the DB exchanges
+	usersRepository := repository.NewUsersRepository(logger, dBClient)
+
+	// Init : services for the logic
+	usersService := services.NewUsersService(logger, usersRepository)
+	filesService := services.NewFilesService(logger, usersRepository)
+
+	// Init : controllers to handle external requests
+	dropboxController := controllers.NewDropboxController(logger, usersService, filesService)
 
 	// Configure logger format for GIN
 	router.Use(CustomLogger(logger))
 
+	// Serve frontend static files
+	router.Use(static.Serve("/", static.LocalFile("../frontend/build", true)))
+
 	// Setup all API routes
 	apiV1 := router.Group("/api/dropbox")
 	{
-		// GET will be used to validate the challenge from Dropbox
-		// POST will be used to received and threat the events notifications
+		// Route to install the Dropbox app
 		apiV1.GET("/events", dropboxController.ValidDropboxWebsocketChallenge)
+		apiV1.GET("/oauth_callback", dropboxController.AuthentificationCallback)
+
+		// Route to receive all events notifications
 		apiV1.POST("/events", dropboxController.ReceivedDropboxEventsNotifications)
 	}
 

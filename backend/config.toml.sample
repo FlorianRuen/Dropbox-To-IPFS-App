@@ -1,0 +1,12 @@
+# Default config:
+[API]
+    ListenPort = ""
+
+[DATABASE]
+    User = ""
+    Password = ""
+    Host = ""
+    Port =
+    Name = ""
+    SslMode = ""
+    MaxConns = 

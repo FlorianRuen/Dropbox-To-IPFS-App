@@ -1,3 +1,4 @@
 import DropboxAuth from "./DropboxAuth";
+import DropboxCallback from "./DropboxCallback";
 
-export { DropboxAuth };
+export { DropboxAuth, DropboxCallback };

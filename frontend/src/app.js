@@ -1,8 +1,7 @@
 import React from "react";
 import { Switch, Route } from "react-router-dom";
 
-import { DropboxAuth } from "./views/dropbox-auth";
-import "./scss/app.scss";
+import { DropboxAuth, DropboxCallback } from "./views/dropbox-auth";
 
 const App = () => {
   return (
@@ -10,9 +9,8 @@ const App = () => {
 
       <div>
         <Switch>
-          
-          {/* Following routes are protected only by Auth0 */}
-          <Route path="/" component={DropboxAuth} />
+          <Route exact path="/" component={DropboxAuth} />
+          <Route path="/callback" component={DropboxCallback} />
         </Switch>
       </div>
     </div>

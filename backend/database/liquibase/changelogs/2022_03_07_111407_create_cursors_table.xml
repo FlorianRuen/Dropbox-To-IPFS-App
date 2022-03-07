@@ -1,0 +1,43 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:pro="http://www.liquibase.org/xml/ns/pro" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/pro http://www.liquibase.org/xml/ns/pro/liquibase-pro-4.1.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.1.xsd">
+    
+
+       <changeSet id="2022_03_03_205450" author="Florian Ruen">
+
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <changeSetExecuted 
+                    id="2022_03_07_111407" 
+                    author="Florian Ruen" 
+                    changeLogFile="2022_03_07_111407_create_cursors_table.xml" 
+                />
+
+                <tableExists tableName="cursors"/>
+            </not>
+        </preConditions>
+
+       <!--Create table to store all cursors (used to browser Dropbox files) -->
+        <createTable tableName="cursors">
+            <column name="account_id" type="varchar(255)">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+
+            <column name="cursor" type="varchar(255)" />
+            <column name="stored_at" type="TIMESTAMP WITH TIME ZONE"  defaultValueComputed="CURRENT_TIMESTAMP" />
+        </createTable>
+
+        <!--Add foreign key between users and cursors by account_id -->
+        <addForeignKeyConstraint  
+            baseColumnNames="account_id"  
+            baseTableName="cursors"  
+            constraintName="cursors_stored_by_account_id"  
+            onDelete="CASCADE"  
+            onUpdate="CASCADE"  
+            referencedColumnNames="account_id"  
+            referencedTableName="users"  
+            validate="true"
+        /> 
+
+    </changeSet>
+
+</databaseChangeLog>

@@ -19,3 +19,6 @@ backend/database/liquibase/lib/liquibase_autocomplete.sh
 backend/database/liquibase/lib/picocli-4.6.1.jar
 backend/database/liquibase/lib/snakeyaml-1.27.jar
 backend/docker-compose.yml
+
+# Temp files
+backend/temp_content

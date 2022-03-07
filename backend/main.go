@@ -88,7 +88,7 @@ func main() {
 	}
 
 	// Setup the API and all routes
-	server := routes.SetupRoutes(logger, dbClient)
+	server := routes.SetupRoutes(logger, config, dbClient)
 
 	// Start the server with the configuration
 	go func() {

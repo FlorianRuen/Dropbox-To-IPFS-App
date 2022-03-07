@@ -12,6 +12,8 @@ import (
 type Config struct {
 	API      APIConfig      `json:"apiConfig"`
 	Database DatabaseConfig `json:"databaseConfig"`
+	Files    FilesConfig    `json:"filesConfig"`
+	Estuary  EstuaryConfig  `json:"estuaryConfig"`
 }
 
 type APIConfig struct {
@@ -26,6 +28,15 @@ type DatabaseConfig struct {
 	Name     string `json:"databaseName"`
 	SslMode  string `json:"databaseSslMode"`
 	MaxConns int32  `json:"maxConns"`
+}
+
+type FilesConfig struct {
+	TempFolder string `json:"tempFolder"`
+}
+
+type EstuaryConfig struct {
+	UploadEndpoint string `json:"uploadEndpoint"`
+	Token          string `json:"token"`
 }
 
 func CheckValidConfig(config Config, meta toml.MetaData) error {

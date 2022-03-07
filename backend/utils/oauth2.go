@@ -13,7 +13,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func GetAccessToken(ctx context.Context, logger *logrus.Logger, code string) (*model.DropboxUser, error) {
+func GetAccessToken(ctx context.Context, logger *logrus.Logger, code string) (*model.User, error) {
 
 	data := url.Values{
 		"client_id":     {"c3hbpngaqu240bf"},
@@ -30,13 +30,13 @@ func GetAccessToken(ctx context.Context, logger *logrus.Logger, code string) (*m
 	}
 
 	body, err := ioutil.ReadAll(response.Body)
-	callback_response := &model.DropboxUser{}
+	callback_response := &model.User{}
 
 	if err != nil {
 
 		logger.WithFields(logrus.Fields{
 			"err": err,
-		}).Errorln("Error while getting challenge from Estuary Api with message")
+		}).Errorln("Error while getting user from Dropbox API with message")
 
 		return callback_response, err
 	}
@@ -46,7 +46,7 @@ func GetAccessToken(ctx context.Context, logger *logrus.Logger, code string) (*m
 
 		logger.WithFields(logrus.Fields{
 			"err": err,
-		}).Errorln("Error while unmarshal the response from Estuary while checking challenge")
+		}).Errorln("Error while unmarshal the response from Dropbox while getting the user")
 
 		return callback_response, err
 	}

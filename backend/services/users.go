@@ -8,8 +8,8 @@ import (
 )
 
 type UsersService interface {
-	InsertNewUser(c *gin.Context, user *model.DropboxUser) error
-	GetUserByAccountId(c *gin.Context, accountId string) (error, model.DropboxUser)
+	InsertNewUser(c *gin.Context, user *model.User) error
+	GetUserByAccountId(c *gin.Context, accountId string) (model.User, error)
 }
 
 type usersService struct {
@@ -25,10 +25,10 @@ func NewUsersService(logger *logrus.Logger, usersRepository repository.UsersRepo
 	}
 }
 
-func (s usersService) InsertNewUser(c *gin.Context, user *model.DropboxUser) error {
+func (s usersService) InsertNewUser(c *gin.Context, user *model.User) error {
 	return s.usersRepository.InsertNewUser(c, user)
 }
 
-func (s usersService) GetUserByAccountId(c *gin.Context, accountId string) (error, model.DropboxUser) {
+func (s usersService) GetUserByAccountId(c *gin.Context, accountId string) (model.User, error) {
 	return s.usersRepository.GetByAccountId(c, accountId)
 }

@@ -22,17 +22,20 @@ type DropboxController interface {
 }
 
 type dropboxController struct {
-	logger       *logrus.Logger
-	usersService services.UsersService
-	filesService services.FilesService
+	logger         *logrus.Logger
+	usersService   services.UsersService
+	filesService   services.FilesService
+	dropboxService services.DropboxService
 }
 
-func NewDropboxController(logger *logrus.Logger, usersService services.UsersService, filesService services.FilesService) DropboxController {
+func NewDropboxController(logger *logrus.Logger, usersService services.UsersService, filesService services.FilesService,
+	dropboxService services.DropboxService) DropboxController {
 
 	return dropboxController{
-		logger:       logger,
-		usersService: usersService,
-		filesService: filesService,
+		logger:         logger,
+		usersService:   usersService,
+		filesService:   filesService,
+		dropboxService: dropboxService,
 	}
 }
 
@@ -53,6 +56,10 @@ func (ctrl dropboxController) AuthentificationCallback(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
 		return
 	}
+
+	// Get the user's account details by calling Dropbox API
+	userAccountDetails, err := ctrl.dropboxService.GetUserAccount(c, callback_response.AccessToken, callback_response.AccountId)
+	callback_response.Details = userAccountDetails
 
 	// Store the access token in Redis database
 	err = ctrl.usersService.InsertNewUser(c, callback_response)

@@ -18,12 +18,15 @@ type DropboxDelta struct {
 	Users []json.Number `json:"users"`
 }
 
-type DropboxUser struct {
-	AccessToken     string      `json:"access_token" gorm:"column:access_token"`
-	TokenType       string      `json:"token_type" gorm:"column:token_type"`
-	RetrievedAt     time.Time   `json:"retrieved_at" gorm:"column:retrieved_at"`
-	ExpiresIn       json.Number `json:"expires_in" gorm:"column:expires_in"`
-	Scopes          string      `json:"scope" gorm:"column:scopes"`
-	UniqueIdentifer string      `json:"uid" gorm:"column:uid"`
-	AccountId       string      `json:"account_id" gorm:"column:account_id"`
+type DropboxFile struct {
+	Name           string      `json:"name"`
+	PathLower      string      `json:"path_lower"`
+	PathDisplay    string      `json:"path_display"`
+	Id             string      `json:"id"`
+	ClientModified time.Time   `json:"client_modified"`
+	ServerModified time.Time   `json:"server_modified"`
+	Revision       string      `json:"rev"`
+	Size           json.Number `json:"size"`
+	IsDownloadable bool        `json:"is_downloadable"`
+	ContentHash    string      `json:"content_hash"`
 }

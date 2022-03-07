@@ -10,3 +10,10 @@
     Name = ""
     SslMode = ""
     MaxConns = 
+
+[FILES]
+    TempFolder = ""
+
+[ESTUARY]
+    UploadEndpoint = ""
+	Token = ""

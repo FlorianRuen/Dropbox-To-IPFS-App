@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/FlorianRuen/Dropbox-To-IPFS-App/backend/controllers"
+	"github.com/FlorianRuen/Dropbox-To-IPFS-App/backend/model"
 	"github.com/FlorianRuen/Dropbox-To-IPFS-App/backend/repository"
 	"github.com/FlorianRuen/Dropbox-To-IPFS-App/backend/services"
 	"github.com/gin-contrib/cors"
@@ -36,7 +37,7 @@ func CustomLogger(logger *logrus.Logger) gin.HandlerFunc {
 	}
 }
 
-func SetupRoutes(logger *logrus.Logger, dBClient *gorm.DB) http.Server {
+func SetupRoutes(logger *logrus.Logger, config model.Config, dBClient *gorm.DB) http.Server {
 
 	logger.Info("Setup all REST API endpoints ...")
 
@@ -63,11 +64,13 @@ func SetupRoutes(logger *logrus.Logger, dBClient *gorm.DB) http.Server {
 	usersRepository := repository.NewUsersRepository(logger, dBClient)
 
 	// Init : services for the logic
+	dropboxService := services.NewDropboxService(logger)
+	estuaryService := services.NewEstuaryService(config, logger)
 	usersService := services.NewUsersService(logger, usersRepository)
-	filesService := services.NewFilesService(logger, usersRepository)
+	filesService := services.NewFilesService(logger, dropboxService, estuaryService, usersRepository)
 
 	// Init : controllers to handle external requests
-	dropboxController := controllers.NewDropboxController(logger, usersService, filesService)
+	dropboxController := controllers.NewDropboxController(logger, usersService, filesService, dropboxService)
 
 	// Configure logger format for GIN
 	router.Use(CustomLogger(logger))

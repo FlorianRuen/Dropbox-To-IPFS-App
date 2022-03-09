@@ -7,4 +7,5 @@
 
     <include file="changelogs/2022_03_03_205450_create_users_table.xml" relativeToChangelogFile="true"/>
     <include file="changelogs/2022_03_07_111407_create_cursors_table.xml" relativeToChangelogFile="true"/>
+    <include file="changelogs/2022_03_08_081605_create_files_table.xml" relativeToChangelogFile="true"/>
 </databaseChangeLog>

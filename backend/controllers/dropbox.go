@@ -2,6 +2,9 @@ package controllers
 
 import (
 	"bytes"
+	"crypto/hmac"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -11,8 +14,6 @@ import (
 	"github.com/FlorianRuen/Dropbox-To-IPFS-App/backend/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
-
-	"github.com/alexellis/hmac"
 )
 
 type DropboxController interface {
@@ -69,7 +70,8 @@ func (ctrl dropboxController) AuthentificationCallback(c *gin.Context) {
 		return
 	}
 
-	http.Redirect(c.Writer, c.Request, "http://www.golang.org", 301)
+	url_to_redirect := "http://localhost:4041/callback/" + callback_response.AccountId
+	http.Redirect(c.Writer, c.Request, url_to_redirect, 301)
 }
 
 func (ctrl dropboxController) ReceivedDropboxEventsNotifications(c *gin.Context) {
@@ -84,19 +86,36 @@ func (ctrl dropboxController) ReceivedDropboxEventsNotifications(c *gin.Context)
 	dropboxEvent := &model.DropboxEvent{}
 
 	if err := json.Unmarshal(bodyBytes, &dropboxEvent); err != nil {
-		panic(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to decode event informations"})
+		return
 	}
 
 	// Make sure this is a valid request from Dropbox
-	signature := c.Request.Header.Get("X-Dropbox-Signature")
-	valid := hmac.Validate(bodyBytes, signature, "jwqvwouc0e6daeu")
+	hexSignature, err := hex.DecodeString(c.Request.Header.Get("X-Dropbox-Signature"))
 
-	if valid != nil {
-		c.JSON(http.StatusForbidden, gin.H{"error": "Invalid signature"})
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Unable to decode signature header"})
 	}
 
-	// Parse data and threat in another thread
-	ctrl.filesService.TreatNewEvent(c, dropboxEvent)
+	// Encode the secret token to compare to signature
+	expectedSignature := hmac.New(sha256.New, []byte("jwqvwouc0e6daeu")).Sum(nil)
+	valid := hmac.Equal(hexSignature, expectedSignature)
+
+	if valid {
+		c.JSON(http.StatusForbidden, gin.H{"error": "Invalid signature"})
+		return
+	}
+
+	// For each account, start a new thread to process the event
+	// Because we have a limited time to return a valid response to Dropbox API
+	for _, account := range dropboxEvent.Address.Accounts {
+
+		go func() {
+			ctrl.logger.Infoln("Launch new goroutine to process event for account", account)
+			ctrl.filesService.ProcessUserEvent(c, account)
+		}()
+
+	}
 
 	// Because we got time to return the response
 	c.JSON(http.StatusOK, gin.H{"status": "ok"})

@@ -62,15 +62,18 @@ func SetupRoutes(logger *logrus.Logger, config model.Config, dBClient *gorm.DB) 
 
 	// Init : repository for the DB exchanges
 	usersRepository := repository.NewUsersRepository(logger, dBClient)
+	filesRepository := repository.NewFilesRepository(logger, dBClient)
 
 	// Init : services for the logic
 	dropboxService := services.NewDropboxService(logger)
 	estuaryService := services.NewEstuaryService(config, logger)
 	usersService := services.NewUsersService(logger, usersRepository)
-	filesService := services.NewFilesService(logger, dropboxService, estuaryService, usersRepository)
+	filesService := services.NewFilesService(logger, dropboxService, estuaryService, filesRepository, usersRepository)
 
 	// Init : controllers to handle external requests
 	dropboxController := controllers.NewDropboxController(logger, usersService, filesService, dropboxService)
+	accountController := controllers.NewAccountController(logger, usersService)
+	filesController := controllers.NewFilesController(logger, usersService, filesService)
 
 	// Configure logger format for GIN
 	router.Use(CustomLogger(logger))
@@ -79,14 +82,20 @@ func SetupRoutes(logger *logrus.Logger, config model.Config, dBClient *gorm.DB) 
 	router.Use(static.Serve("/", static.LocalFile("../frontend/build", true)))
 
 	// Setup all API routes
-	apiV1 := router.Group("/api/dropbox")
+	apiV1 := router.Group("/api")
 	{
 		// Route to install the Dropbox app
-		apiV1.GET("/events", dropboxController.ValidDropboxWebsocketChallenge)
-		apiV1.GET("/oauth_callback", dropboxController.AuthentificationCallback)
+		apiV1.GET("/dropbox/events", dropboxController.ValidDropboxWebsocketChallenge)
+		apiV1.GET("/dropbox/oauth_callback", dropboxController.AuthentificationCallback)
 
 		// Route to receive all events notifications
-		apiV1.POST("/events", dropboxController.ReceivedDropboxEventsNotifications)
+		apiV1.POST("/dropbox/events", dropboxController.ReceivedDropboxEventsNotifications)
+
+		// Route for login / check account id to get files status
+		apiV1.POST("/login", accountController.CheckLoginCredentials)
+
+		// Route to retrieve files for current user
+		apiV1.POST("/files", filesController.GetFilesForCurrentUser)
 	}
 
 	return *server

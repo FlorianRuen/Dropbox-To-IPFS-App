@@ -2,6 +2,7 @@
 frontend/node_modules
 frontend/.env
 frontend/package-lock.json
+frontend/config/constants.js
 
 # Backend Stuff
 backend/go.sum

@@ -60,10 +60,11 @@ func (ctrl dropboxController) AuthentificationCallback(c *gin.Context) {
 
 	// Get the user's account details by calling Dropbox API
 	userAccountDetails, err := ctrl.dropboxService.GetUserAccount(c, callback_response.AccessToken, callback_response.AccountId)
-	callback_response.Details = userAccountDetails
+	user := model.NewUser(userAccountDetails, callback_response)
 
-	// Store the access token in Redis database
-	err = ctrl.usersService.InsertNewUser(c, callback_response)
+	// Check if user already exist with this account_id
+	// Update or insert the user depend on the condition result
+	err = ctrl.usersService.UpdateOrInsertUser(c, user)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err})

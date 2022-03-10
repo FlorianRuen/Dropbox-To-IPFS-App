@@ -15,6 +15,7 @@ import (
 
 type AccountController interface {
 	CheckLoginCredentials(c *gin.Context)
+	GetUserDetails(c *gin.Context)
 }
 
 type accountController struct {
@@ -46,6 +47,38 @@ func (ctrl accountController) CheckLoginCredentials(c *gin.Context) {
 	}
 
 	// Get user by account id and return value
+	accountFound, err := ctrl.usersService.CheckUserExistByAccountId(c, accountIdToCheck.Value)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+		return
+	}
+
+	// If no user found, return null
+	if !accountFound {
+		c.JSON(http.StatusNotFound, false)
+
+	} else {
+		c.JSON(http.StatusOK, true)
+	}
+}
+
+func (ctrl accountController) GetUserDetails(c *gin.Context) {
+
+	var bodyBytes []byte
+
+	if c.Request.Body != nil {
+		bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
+	}
+
+	c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+	accountIdToCheck := &model.ValueToCheck{}
+
+	if err := json.Unmarshal(bodyBytes, &accountIdToCheck); err != nil {
+		panic(err)
+	}
+
+	// Get user by account id and return value
 	user, err := ctrl.usersService.GetUserByAccountId(c, accountIdToCheck.Value)
 
 	if err != nil {
@@ -60,5 +93,4 @@ func (ctrl accountController) CheckLoginCredentials(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusOK, user)
 	}
-
 }

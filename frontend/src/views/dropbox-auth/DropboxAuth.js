@@ -25,11 +25,13 @@ export default class DropboxOAuthSample extends Component {
     return (
       <Container>
         <Row>
-          <Col md="4">
-          <img src={logoMin} className="main-logo" height="300px" alt="logo" />
+          <Col md="12" className="text-center">
+            <img src={logoMin} className="mt-4" height="100px" alt="logo" />
           </Col>
+        </Row>
 
-          <Col md="8">
+        <Row>
+          <Col md="12">
             <div className="jumbotron mt-5">
               <div className="text-center">
                 <h2 className="mt-4">Welcome on Dropbox to IPFS application</h2>

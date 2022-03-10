@@ -93,6 +93,7 @@ func SetupRoutes(logger *logrus.Logger, config model.Config, dBClient *gorm.DB) 
 
 		// Route for login / check account id to get files status
 		apiV1.POST("/login", accountController.CheckLoginCredentials)
+		apiV1.POST("/user", accountController.GetUserDetails)
 
 		// Route to retrieve files for current user
 		apiV1.POST("/files", filesController.GetFilesForCurrentUser)
